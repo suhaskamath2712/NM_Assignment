@@ -1,0 +1,62 @@
+import matplotlib.pyplot as plt
+
+x = [0,3,5,8,13]
+fx = [0,225,383,623,993]
+fprimex = [75,77,80,74,72]
+
+#Calculate hermite polynomial using newton's divided difference method
+def hermite_newton(x,fx,fprimex):
+    n = len(x)
+    m = 2*n
+    z = [0]*m
+    Q = [[0 for j in range(m)] for i in range(m)]
+    
+    for i in range(n):
+        z[2*i] = x[i]
+        z[2*i+1] = x[i]
+        Q[2*i][0] = fx[i]
+        Q[2*i+1][0] = fx[i]
+        Q[2*i+1][1] = fprimex[i]
+        if i != 0:
+            Q[2*i][1] = (Q[2*i][0] - Q[2*i-1][0]) / (z[2*i] - z[2*i-1])
+    
+    for j in range(2, m):
+        for i in range(2, m):
+            if i >= j:
+                Q[i][j] = (Q[i][j-1] - Q[i-1][j-1]) / (z[i] - z[i-j])
+    
+    coeffs = [Q[i][i] for i in range(m)]
+    
+    #Print the divided difference table in proper format
+    print("Divided Difference Table:")
+    for row in Q:
+        print(" | ".join(f"{val:10.4f}" for val in row))
+        print("-" * 50)
+
+    
+    print("\nHermite Polynomial Coefficients:")
+    print(coeffs)
+    
+    def hermite_poly(X):
+        result = coeffs[0]
+        term = 1
+        for i in range(1, m):
+            term *= (X - z[i-1])
+            result += coeffs[i] * term
+        return result
+    
+    return hermite_poly
+
+hermite_poly = hermite_newton(x, fx, fprimex)
+print("Value of hermite polynomial at x=10:", hermite_poly(10))  # Example usage: evaluate the polynomial at x=10
+
+plot = [hermite_poly(i) for i in range(0,14)]
+
+plt.plot(range(0,14), plot, label='Hermite Polynomial')
+plt.scatter(x, fx, color='red', label='Actual Data Points')
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('H(x)')
+plt.title('Hermite Interpolating Polynomial')
+plt.grid()
+plt.show()

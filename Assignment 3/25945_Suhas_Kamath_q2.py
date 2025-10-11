@@ -18,7 +18,7 @@ def simpsons_rule(a, b, n):
     integral *= h / 3
     return integral
 
-components = [2,4,8,16,32,64,128]
+components = [4,8,16,32,64,128]
 a, b = 0, 1
 
 results = [simpsons_rule(a, b, n) for n in components]
@@ -30,7 +30,7 @@ for n, result, err in zip(components, results, error):
 
 #Plot error graph log-log scale
 plt.plot(np.log(components), np.log(error), marker='o', label='Error Line')
-plt.plot(np.log(components), -5*np.log(np.array(components))-2, label='Reference: y=5x', linestyle='--')
+plt.plot(np.log(components), -4*np.log(np.array(components))-5, label='Reference: y=-4x', linestyle='--')
 plt.xlabel('log(Number of Subintervals (n))')
 plt.ylabel('log(Error)')
 plt.title("Error in Simpson's Rule")

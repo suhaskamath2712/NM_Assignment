@@ -29,9 +29,10 @@ for n, result, err in zip(components, results, error):
     print(f"n={n}, Integral={result}, Error={err}")
 
 #Plot error graph log-log scale
-plt.plot(np.log(components), np.log(error), marker='o', label='Error Line')
-plt.plot(np.log(components), -4*np.log(np.array(components))-5, label='Reference: y=-4x', linestyle='--')
-plt.xlabel('log(Number of Subintervals (n))')
+h = [np.log((b-a)/n) for n in components]
+plt.plot(h, np.log(error), marker='o', label='Error Line')
+plt.plot(h, -4*np.log(np.array(components))-5, label='Reference: y=-4x', linestyle='--')
+plt.xlabel('log(Step size h)')
 plt.ylabel('log(Error)')
 plt.title("Error in Simpson's Rule")
 plt.grid()

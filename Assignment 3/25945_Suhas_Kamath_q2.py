@@ -28,10 +28,14 @@ error = [abs(math.pi/4 - result) for result in results]
 for n, result, err in zip(components, results, error):
     print(f"n={n}, Integral={result}, Error={err}")
 
+#Gradient of the log-log error graph between first and last points
+grad = (np.log(error[-1]) - np.log(error[0])) / (np.log((b-a)/components[-1]) - np.log((b-a)/components[0]))
+print(f"Gradient of log-log error graph: {grad}")
+
 #Plot error graph log-log scale
 h = [np.log((b-a)/n) for n in components]
 plt.plot(h, np.log(error), marker='o', label='Error Line')
-plt.plot(h, -4*np.log(np.array(components))-5, label='Reference: y=-4x', linestyle='--')
+plt.plot(h, -6.28*np.log(np.array(components))-5, label='Reference: y=-6.28x', linestyle='--')
 plt.xlabel('log(Step size h)')
 plt.ylabel('log(Error)')
 plt.title("Error in Simpson's Rule")

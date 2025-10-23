@@ -42,9 +42,18 @@ for i, h in enumerate(step_sizes):
     print(f"{h:<10.0e} {three_point_backward_results[i]:<20.10f} {three_point_forward_results[i]:<20.10f} {five_point_central_results[i]:<20.10f} {exact_value:<20.10f}")
 
 # Calculate log of errors, handling potential zero error for log10
-three_point_backward_errors_log = [math.log10(abs(val - exact_value)) if abs(val - exact_value) > 0 else -np.inf for val in three_point_backward_results]
-three_point_forward_errors_log = [math.log10(abs(val - exact_value)) if abs(val - exact_value) > 0 else -np.inf for val in three_point_forward_results]
-five_point_central_errors_log = [math.log10(abs(val - exact_value)) if abs(val - exact_value) > 0 else -np.inf for val in five_point_central_results]
+three_point_backward_errors = [abs(val - exact_value) for val in three_point_backward_results]
+three_point_forward_errors = [abs(val - exact_value) for val in three_point_forward_results]
+five_point_central_errors = [abs(val - exact_value) for val in five_point_central_results]
+
+#Print errors
+print(f"\n{'h':<10} {'3-pt Backward Error':<25} {'3-pt Forward Error':<25} {'5-pt Central Error':<25}")
+for i, h in enumerate(step_sizes):
+    print(f"{h:<10.0e} {three_point_backward_errors[i]:<25.10e} {three_point_forward_errors[i]:<25.10e} {five_point_central_errors[i]:<25.10e}")
+
+three_point_backward_errors_log = [math.log10(err) if abs(err) > 0 else -np.inf for err in three_point_backward_errors]
+three_point_forward_errors_log = [math.log10(err) if abs(err) > 0 else -np.inf for err in three_point_forward_errors]
+five_point_central_errors_log = [math.log10(err) if abs(err) > 0 else -np.inf for err in five_point_central_errors]
 
 log_step_sizes = np.log10(step_sizes)
 

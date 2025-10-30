@@ -1,8 +1,6 @@
 import math
 import matplotlib.pyplot as plt
 
-# The constraints require no use of numpy, so all functions must use standard Python lists and math.
-
 # --- Helper function for the Logistic Map ---
 def logistic_map(A, x0, n_iter):
     """
@@ -58,7 +56,7 @@ transients = 15
 # 1. Use custom_arange for robust generation of A values
 A_values = custom_arange(min_A, max_A, step)
 
-# Arrays to collect all A and x values for efficient plotting
+# Arrays to collect all A and x values for plotting
 all_A = []
 all_x = []
 

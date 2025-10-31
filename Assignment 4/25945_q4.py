@@ -209,26 +209,21 @@ ax_anim.set_title(f'Fourier Reconstruction (M={M_to_animate})')
 ax_anim.axis('off')
 
 # --- Create artists (circles, radial vectors, pen trace, pen point) ---
-# Circle radius per vector (DC term has radius 0; it’s just a center shift)
 radii = [0.0 if k == 0 else np.abs(c_k) for k, c_k in coeffs_sorted]
 
-# Circles (one per vector)
 circle_patches = []
 for r in radii:
     circ = Circle((0.0, 0.0), r, edgecolor='tab:blue', facecolor='none', alpha=0.25, linewidth=1.0)
     ax_anim.add_patch(circ)
     circle_patches.append(circ)
 
-# Radial vectors (lines from circle center to its rotating endpoint)
 epicycle_lines = []
 for _ in range(num_vectors):
     line, = ax_anim.plot([], [], color='tab:blue', alpha=0.6, linewidth=1.5)
     epicycle_lines.append(line)
 
-# Optional small points at endpoints of each vector
 epicycle_points, = ax_anim.plot([], [], 'o', color='tab:blue', alpha=0.5, markersize=2)
 
-# Red pen and its trace (full path traced so far)
 pen_trace, = ax_anim.plot([], [], color='red', linewidth=2)
 pen_point, = ax_anim.plot([], [], 'o', color='red', markersize=4)
 

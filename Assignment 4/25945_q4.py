@@ -1,9 +1,6 @@
-import sys
 from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
-from matplotlib.lines import Line2D # For custom legend
-from matplotlib.patches import Circle  # for drawing epicycle circles
 
 def compute_fourier_coefficients(z_samples, M):
     """
@@ -151,7 +148,7 @@ print(f"Part 5 plot saved to {output_filename_plot}")
 # --- Part 6: Animation ---
 print("\n--- Starting Part 6: Animation (Epicycle-only style) ---")
 # --- Parameters ---
-M_to_animate = 64         # Number of modes for animation
+M_to_animate = 256         # Number of modes for animation
 N_frames = 400            # Number of frames in the animation
 
 # --- Prepare Data for Animation ---
@@ -191,7 +188,6 @@ path_y = epicycles_data[:, -1, 1]
 # --- Set up the plot ---
 fig_anim, ax_anim = plt.subplots(figsize=(8, 8))
 
-# Optional: plot the original letter as a faint reference
 ax_anim.plot(z_samples_original.real, z_samples_original.imag, color='gray', alpha=0.25, linewidth=1)
 
 # Axis limits from all points the mechanism visits
@@ -208,15 +204,8 @@ ax_anim.set_aspect('equal', adjustable='box')
 ax_anim.set_title(f'Fourier Reconstruction (M={M_to_animate})')
 ax_anim.axis('off')
 
-# --- Create artists (circles, radial vectors, pen trace, pen point) ---
-radii = [0.0 if k == 0 else np.abs(c_k) for k, c_k in coeffs_sorted]
-
-circle_patches = []
-for r in radii:
-    circ = Circle((0.0, 0.0), r, edgecolor='tab:blue', facecolor='none', alpha=0.25, linewidth=1.0)
-    ax_anim.add_patch(circ)
-    circle_patches.append(circ)
-
+# --- Create artists (radial vectors, pen trace, pen point) ---
+# (No circles)
 epicycle_lines = []
 for _ in range(num_vectors):
     line, = ax_anim.plot([], [], color='tab:blue', alpha=0.6, linewidth=1.5)
@@ -230,10 +219,6 @@ pen_point, = ax_anim.plot([], [], 'o', color='red', markersize=4)
 # --- Animation function ---
 def update(frame):
     vec_pts = epicycles_data[frame]  # shape (num_vectors+1, 2)
-    # Update circles (centers only; radii fixed)
-    for j, circ in enumerate(circle_patches):
-        cx, cy = vec_pts[j, 0], vec_pts[j, 1]  # center for vector j
-        circ.center = (cx, cy)
 
     # Update radial vectors
     for j, line in enumerate(epicycle_lines):
@@ -241,14 +226,14 @@ def update(frame):
         ex, ey = vec_pts[j + 1, 0], vec_pts[j + 1, 1]  # endpoint
         line.set_data([cx, ex], [cy, ey])
 
-    # Update small endpoints cloud (excluding the very first center)
+    # Update small endpoints cloud (excluding the first center)
     epicycle_points.set_data(vec_pts[1:, 0], vec_pts[1:, 1])
 
     # Update pen trace and pen point
     pen_trace.set_data(path_x[:frame + 1], path_y[:frame + 1])
     pen_point.set_data([path_x[frame]], [path_y[frame]])
 
-    return (*circle_patches, *epicycle_lines, epicycle_points, pen_trace, pen_point)
+    return (*epicycle_lines, epicycle_points, pen_trace, pen_point)
 
 # --- Create and save the animation ---
 ani = FuncAnimation(fig_anim, update, frames=N_frames, interval=20, blit=True)

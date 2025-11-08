@@ -6,18 +6,10 @@ Newton's method to each complex seed. The basin-of-attraction (which root
 each seed converges to) is recorded and rendered with matplotlib.
 
 Key concepts and choices:
-- The polynomial has three roots (one real, two complex conjugates). Newton's
-  method will typically converge to the nearest attracting root depending on
-  the seed. The boundaries between basins form the fractal.
-- We record integer indices (0,1,2) for seeds that converge to one of the
-  known roots within 'epsilon'. Non-convergent seeds (within max_iter) are
-  left as their final complex iterate; imshow will map those values to colors
-  as well (typically non-integer).
-- This implementation uses pure Python lists (no numpy) for portability/constraints.
-  It is straightforward but slower than a vectorized numpy/numba approach.
-- Visualization: imshow maps the 2D list-of-lists to an image. Use 'extent'
-  to map array indices to complex-plane coordinates. To have y increase upwards
-  (mathematical convention), pass origin='lower' to imshow.
+- The polynomial has three roots (one real, two complex conjugates) as shown in the report.
+- Newton's method will converges to the nearest attracting root depending on the initial guess.
+- The boundaries between basins form the fractal.
+- Visualization: imshow maps the 2D list-of-lists to an image.
 - Performance: complexity is O(width * height * avg_iters). On large grids this
   can take a long time in Python. For exploration reduce width/height or max_iter.
 """
@@ -25,10 +17,9 @@ Key concepts and choices:
 import math
 from matplotlib import pyplot as plt
 
-
 # Problem-specific constants
 
-# Precompute the three exact roots of x^3 + 1 = 0.
+# The three exact roots of x^3 + 1 = 0.
 # These are:
 #   1) -1 (real)
 #   2) exp(i*pi/3)  = cos(pi/3) + i sin(pi/3)
@@ -64,12 +55,8 @@ def f_prime(x):
 def get_min_index(arr):
     """
     Return the minimum value in 'arr' and its index.
-
-    Args:
-        arr (iterable[float]): A small list of non-negative distances.
-
-    Returns:
-        (min_value, min_index)
+    Args: arr (iterable[float]): A small list of non-negative distances.
+    Returns: (min_value, min_index)
     """
     # Simple linear scan; arrays are very short (length 3 in this script).
     min_index = 0
@@ -108,7 +95,6 @@ def newton_fractal(x0):
 def linspace(start, stop, num):
     """
     Minimal implementation of numpy.linspace with endpoint inclusion.
-
     Returns a list of length 'num' with values evenly spaced from start to stop,
     inclusive.
     """
@@ -121,13 +107,11 @@ def zeros(shape):
     """
     Create a 1D or 2D Python list-of-lists containing zeros.
 
-    Args:
-        shape: tuple describing the desired shape. Supported:
+    Args: shape: tuple describing the desired shape. Supported:
                (n,) -> 1D list length n
                (rows, cols) -> 2D list rows x cols
 
-    Returns:
-        list or list[list]
+    Returns: list or list[list]
     """
     if len(shape) == 1:
         return [0] * shape[0]
@@ -139,11 +123,10 @@ def zeros(shape):
 
 
 # Grid and sampling parameters
-# Image resolution: increase to see more detail but runtime grows linearly.
+# Image resolution
 width = height = 1000
 
-# Region of the complex plane to sample. The 'extent' passed to imshow must
-# match these values so the axes display the correct complex coordinates.
+# Region of the complex plane to sample.
 x_min, x_max = -2, 2
 y_min, y_max = -2, 2
 
@@ -159,11 +142,9 @@ print("Generated x and y values for the complex plane.")
 newton_fractal_plot = zeros((height, width))
 print("Initialized newton_fractal_plot array.")
 
-
 # Main computation: apply Newton iteration to each seed
-
 # We iterate over rows (y) and columns (x). The mapping convention used here:
-#   newton_fractal_plot[row][col] corresponds to seed = x_vals[col] + y_vals[row]*1j
+# newton_fractal_plot[row][col] corresponds to seed = x_vals[col] + y_vals[row]*1j
 for i in range(height):
     for j in range(width):
         seed = x_vals[j] + y_vals[i] * 1j
@@ -171,15 +152,8 @@ for i in range(height):
 
 print("Computed Newton fractal values for the grid.")
 
-
-# Visualization
-# Create a 16:9 figure for nicer presentation
 plt.figure(figsize=(16, 9))
 
-# imshow displays the 2D list. Important arguments:
-# - extent maps pixel coordinates to (x_min,x_max,y_min,y_max)
-# - interpolation='nearest' preserves the discrete basin boundaries
-# - origin='lower' will place the first row at the bottom (mathematical y-up).
 plt.imshow(
     newton_fractal_plot,
     extent=(x_min, x_max, y_min, y_max),
@@ -191,13 +165,7 @@ plt.title('Newton Fractal (f(x) = x^3 + 1)')
 plt.xlabel('Re(c) - Real Axis')
 plt.ylabel('Im(c) - Imaginary Axis')
 
-# Optional: choose a colormap that makes the three basins distinct.
-# Examples: 'tab10', 'viridis', 'plasma', 'twilight', 'hsv'
-# plt.colormaps can be large; choose one appropriate for discrete integer labels.
-# E.g. for discrete palette: cmap = plt.cm.get_cmap('tab10', 10)
-# plt.imshow(..., cmap=plt.cm.get_cmap('tab10', 10), ...)
-
-# Save the high-resolution image.
+# Save the image.
 plt.savefig(
     r"H:\My Drive\Numerical Methods\Assignments\Assignment 4\q2b_newton_fractal.png",
     dpi=300

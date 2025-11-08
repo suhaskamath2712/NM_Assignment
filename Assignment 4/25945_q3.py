@@ -20,12 +20,13 @@ max_distance = 0.01
 # Learning rate (step size) for GD.
 alpha = 0.01
 
-#
+# Calculates the position of the end effector given the angles
 def P(angles):
     x = l1 * cos(angles[0]) + l2 * cos(angles[0] + angles[1]) + l3 * cos(angles[0] + angles[1] + angles[2])
     y = l1 * sin(angles[0]) + l2 * sin(angles[0] + angles[1]) + l3 * sin(angles[0] + angles[1] + angles[2])
     return [x, y]
 
+# Calculates the squared Euclidean norm of a vector
 def two_norm_squared(vec):
     """
     Squared Euclidean norm ||v||^2 of a 2D vector [vx, vy] (or any iterable of numbers).
@@ -33,6 +34,7 @@ def two_norm_squared(vec):
     """
     return sum(i**2 for i in vec)
 
+# Loss function
 def L(angles):
     """
     Loss function: L(θ) = 0.5 * ||P(θ) - target||^2
@@ -40,6 +42,7 @@ def L(angles):
     p_theta = P(angles)
     return 0.5 * two_norm_squared([p_theta[0] - target[0], p_theta[1] - target[1]])
 
+# Numerical gradient of the loss function
 def nablaL(angles):
     """
     Numerical first derivate by central difference.
@@ -57,6 +60,7 @@ def nablaL(angles):
         grad[i] = (L(angles_plus_h) - L(angles_minus_h)) / (2 * h)
     return grad
 
+# Calculate Euclidean distance between current position and target
 def calculate_euclidean_distance(angles):
     """
     Euclidean distance = ||P(θ) - target||
@@ -64,13 +68,14 @@ def calculate_euclidean_distance(angles):
     p_theta = P(angles)
     return (two_norm_squared([p_theta[0] - target[0], p_theta[1] - target[1]]))**0.5
 
-# -------------------------------------------------------------------------------------------------
 # Gradient Descent (GD)
 print("---------- Gradient Descent ----------")
 
 # Initialize iteration counter and starting configuration.
 k = 0
-angles_k = theta0[:]           # copy to avoid mutating the original initial guess
+
+# copy to avoid mutating the original initial guess
+angles_k = theta0[:]           
 path_gd = [P(angles_k)]        
 dist = calculate_euclidean_distance(angles_k)
 
@@ -87,7 +92,6 @@ print("Final Angles (deg): [" + ", ".join(f"{degrees(a):.4f}" for a in angles_k)
 print("Final Co-ordinates: [" + ", ".join(f"{v:.4f}" for v in P(angles_k)) + "]")
 print(f"Final Distance: {dist:.5f}\n")
 
-# -------------------------------------------------------------------------------------------------
 # Gradient Descent with Momentum (GDM)
 print("---------- Gradient Descent with Momentum ----------")
 
@@ -103,8 +107,8 @@ dist = calculate_euclidean_distance(angles_k)              # compute initial dis
 
 while (dist > max_distance):
     grad = nablaL(angles_k)                                    # compute current gradient
-    v_k = [beta * v_k[i] + alpha * grad[i] for i in range(3)] # update velocity
-    angles_k = [angles_k[i] - v_k[i] for i in range(3)]       # update parameters
+    v_k = [beta * v_k[i] + alpha * grad[i] for i in range(3)]  # update velocity
+    angles_k = [angles_k[i] - v_k[i] for i in range(3)]        # update parameters
     path_gdm.append(P(angles_k))                               # record path (optional)
     dist = calculate_euclidean_distance(angles_k)              # update convergence metric
     k += 1
@@ -114,7 +118,6 @@ print("Final Angles (deg): [" + ", ".join(f"{degrees(a):.4f}" for a in angles_k)
 print("Final Co-ordinates: [" + ", ".join(f"{v:.4f}" for v in P(angles_k)) + "]")
 print(f"Final Distance: {dist:.5f}")
 
-# -------------------------------------------------------------------------------------------------
 # Visualization
 print("\nGenerating plot...")
 
@@ -134,6 +137,7 @@ ax.plot(x_gdm, y_gdm, 'o-', color='orangered', markersize=3, linewidth=1.5, labe
 # Mark the key points on the plot for clarity.
 # Start Position (common to both)
 ax.plot(path_gd[0][0], path_gd[0][1], 's', color='black', markersize=10, label='Start')
+
 # Target Position
 ax.plot(target[0], target[1], 'X', color='limegreen', markersize=15, label='Target')
 

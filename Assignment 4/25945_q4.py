@@ -7,8 +7,6 @@ def compute_fourier_coefficients(z_samples, M):
     Computes the Fourier coefficients c_k for k from -M to M using a
     numerical approximation of the continuous integral (Equation 4).
     """
-
-    # N is the total number of discrete samples
     N = len(z_samples)
     if N == 0:
         print("Error: Input array z_samples is empty.")
@@ -31,14 +29,13 @@ def compute_fourier_coefficients(z_samples, M):
             z_j = z_samples[j]
 
             # Calculate the exponential term: -i * 2 * pi * k * j / N
-            # In Python and numpy, 1j is used for the imaginary unit i
+            # In Python, 1j is used for the imaginary unit i
             exponent = -1j * 2 * np.pi * k * j / N
 
             # Add this term to the sum: z_j * exp(exponent)
             sum_k += z_j * np.exp(exponent)
 
-        # After summing over all j, we apply the (1/N) scaling
-        # to get the final coefficient c_k
+        # After summing over all j, we apply the (1/N) scaling to get the final coefficient c_k
         c_k = sum_k / N
 
         # Store the computed coefficient in our dictionary
@@ -76,7 +73,7 @@ def reconstruct_curve(coefficients, M, N_recon=1000):
     # Return the time array and the reconstructed curve
     return t_recon, z_recon
 
-# --- Part 2: Data Loading and Preprocessing ---
+# Part 2: Data Loading and Preprocessing
 pts = np.loadtxt(r"H:\My Drive\Numerical Methods\Assignments\Assignment 4\S.csv", delimiter=',', skiprows=1)
 
 # Construct the complex values
@@ -89,7 +86,7 @@ t = [j/N for j in range(N)]
 
 print(f"Loaded {N} points from 'S.csv'.")
 
-# --- Plot original loaded letter ---
+# Plot original loaded letter
 plt.figure(figsize=(4, 4))
 plt.plot(points.real, points.imag, '-', label="Original Letter points")
 plt.axis('equal')
@@ -97,19 +94,19 @@ plt.title("Parametric points of letter 'S' (from CSV)")
 plt.legend()
 plt.show()
 
-# --- Part 5: Visualization ---
+# Part 5: Visualization
 print("\n--- Starting Part 5: Plotting Subplots ---")
 # Define parameters
 N_reconstruction_points = 1000 
 M_values = [2, 8, 32, 64, 128]
 
-# --- Pre-compute all necessary Fourier coefficients ---
+# Pre-compute all necessary Fourier coefficients
 max_M_for_coeffs = max(M_values)
 print(f"Computing Fourier coefficients up to M={max_M_for_coeffs}...")
 all_coeffs = compute_fourier_coefficients(z_samples_original, max_M_for_coeffs)
 print("Coefficients computed.")
 
-# --- Plotting Subplots ---
+# Plotting Subplots
 fig, axes = plt.subplots(1, len(M_values), figsize=(15, 5))
 fig.suptitle('Fourier Reconstruction')
 
@@ -145,13 +142,13 @@ output_filename_plot = r"H:\My Drive\Numerical Methods\Assignments\Assignment 4\
 plt.savefig(output_filename_plot, dpi=300)
 print(f"Part 5 plot saved to {output_filename_plot}")
 
-# --- Part 6: Animation ---
+# Part 6: Animation
 print("\n--- Starting Part 6: Animation (Epicycle-only style) ---")
-# --- Parameters ---
+# Parameters for Animation
 M_to_animate = 256         # Number of modes for animation
 N_frames = 400            # Number of frames in the animation
 
-# --- Prepare Data for Animation ---
+# Prepare Data for Animation
 # Use coefficients already computed up to max M
 print(f"Preparing animation data for M={M_to_animate}...")
 coeffs_sorted = []
@@ -185,7 +182,7 @@ for i, t_val in enumerate(t_anim):
 path_x = epicycles_data[:, -1, 0]
 path_y = epicycles_data[:, -1, 1]
 
-# --- Set up the plot ---
+# Set up the plot
 fig_anim, ax_anim = plt.subplots(figsize=(8, 8))
 
 ax_anim.plot(z_samples_original.real, z_samples_original.imag, color='gray', alpha=0.25, linewidth=1)
@@ -204,8 +201,7 @@ ax_anim.set_aspect('equal', adjustable='box')
 ax_anim.set_title(f'Fourier Reconstruction (M={M_to_animate})')
 ax_anim.axis('off')
 
-# --- Create artists (radial vectors, pen trace, pen point) ---
-# (No circles)
+# Create artists (radial vectors, pen trace, pen point)
 epicycle_lines = []
 for _ in range(num_vectors):
     line, = ax_anim.plot([], [], color='tab:blue', alpha=0.6, linewidth=1.5)
@@ -216,9 +212,9 @@ epicycle_points, = ax_anim.plot([], [], 'o', color='tab:blue', alpha=0.5, marker
 pen_trace, = ax_anim.plot([], [], color='red', linewidth=2)
 pen_point, = ax_anim.plot([], [], 'o', color='red', markersize=4)
 
-# --- Animation function ---
+# Animation function
 def update(frame):
-    vec_pts = epicycles_data[frame]  # shape (num_vectors+1, 2)
+    vec_pts = epicycles_data[frame]
 
     # Update radial vectors
     for j, line in enumerate(epicycle_lines):
@@ -235,7 +231,7 @@ def update(frame):
 
     return (*epicycle_lines, epicycle_points, pen_trace, pen_point)
 
-# --- Create and save the animation ---
+# Create and save the animation
 ani = FuncAnimation(fig_anim, update, frames=N_frames, interval=20, blit=True)
 
 output_filename_anim = r"H:\My Drive\Numerical Methods\Assignments\Assignment 4\q4_6.gif"

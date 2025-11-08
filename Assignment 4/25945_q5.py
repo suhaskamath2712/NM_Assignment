@@ -149,14 +149,43 @@ for dt in delta_ts:
 
 #Close previous plot
 plt.close('all')
+
+# --- Add best-fit lines in log-log space (manual least squares, no np.polyfit) ---
+def log_log_linear_fit(h_values, err_values):
+    """
+    Fit err = C * h^p by linear least squares on ln(err) = a + p ln(h).
+    Returns (C, p).
+    """
+    xs = [math.log(h) for h in h_values]
+    ys = [math.log(e) for e in err_values]
+    n = len(xs)
+    sum_x = sum(xs)
+    sum_y = sum(ys)
+    sum_xx = sum(x * x for x in xs)
+    sum_xy = sum(x * y for x, y in zip(xs, ys))
+    # slope p
+    denom = n * sum_xx - sum_x * sum_x
+    p = (n * sum_xy - sum_x * sum_y) / denom
+    # intercept a
+    a = (sum_y - p * sum_x) / n
+    C = math.exp(a)
+    return C, p
+
+euler_C, euler_p = log_log_linear_fit(delta_ts, euler_rmse)
+rk4_C, rk4_p   = log_log_linear_fit(delta_ts, rk4_rmse)
+
+euler_fit = [euler_C * h**euler_p for h in delta_ts]
+rk4_fit   = [rk4_C * h**rk4_p for h in delta_ts]
+
 plt.figure(figsize=(16,9))
-plt.loglog(delta_ts, euler_rmse, label='Euler Method', linewidth=2)
-plt.plot(delta_ts, [x for x in delta_ts], label='Theoretical Convergence for Euler Method: y = x', linestyle='dashed', linewidth=1)
-plt.loglog(delta_ts, rk4_rmse, label='Runge-Kutta 4 Method', linewidth=2)
-plt.plot(delta_ts, [x**4 for x in delta_ts], label='Theoretical Convergence for RK4 Method: y = 4x', linestyle='dashed', linewidth=1)
-plt.title('Convergence Analysis: RMSE vs Step Size for Euler and RK4 Methods')
-plt.xlabel('Step Size (s)')
-plt.ylabel('Root Mean Square Error (RMSE)')
+plt.loglog(delta_ts, euler_rmse, 'o', label='Euler RMSE')
+plt.loglog(delta_ts, euler_fit, '-', label=f'Euler best fit: {euler_p:.2f} order')
+plt.loglog(delta_ts, rk4_rmse, 'o', label='RK4 RMSE')
+plt.loglog(delta_ts, rk4_fit, '-', label=f'RK4 best fit: {rk4_p:.2f} order')
+
+plt.title('Convergence Analysis: RMSE vs Step Size')
+plt.xlabel('Step Size h (s)')
+plt.ylabel('RMSE')
 plt.legend()
 plt.grid()
 plt.savefig(output_dir + "q5_4.png", dpi=600)

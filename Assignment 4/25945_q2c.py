@@ -86,37 +86,40 @@ plt.savefig(r"H:\My Drive\Numerical Methods\Assignments\Assignment 4\q2c_bifurca
 # PART 2: Lyapunov Exponent and Sensitivity to Initial Conditions
 
 print("Calculating Lyapunov Exponent...")
-
 A_lyapunov = 4.0
-x0 = 0.5            # Initial condition
-delta0 = 0.01       # Initial separation
-x0_prime = x0 + delta0 # Second initial condition
-n_iter_lyapunov = 500  # More iterations for a better estimate
-
-# 1. Generate both sequences
+x0 = 0.5            
+n_iter_lyapunov = 500  
 x_seq = logistic_map(A_lyapunov, x0, n_iter_lyapunov)
-x_prime_seq = logistic_map(A_lyapunov, x0_prime, n_iter_lyapunov)
 
-# 2. Calculate the separation at each step, |x_n - x'_n| and the exponent lambda_n
 n_steps = []
 lambda_n = []
+running_log_sum = 0.0 # This will store the sum: sum[ ln|f'(x_k)| ]
 
-# Loop starts at n=1 (index 1) since the formula is defined for n > 0
+# Loop from n = 1 up to n_iter_lyapunov
+# At each step 'n', we calculate lambda_n
 for n in range(1, n_iter_lyapunov):
-    # Separation at time n
-    delta_n = abs(x_seq[n] - x_prime_seq[n])
     
-    # Calculate the finite-time Lyapunov exponent
-    # Formula: lambda_n = (1/n) * log(delta_n / delta_0)
-    # Use math.log (natural logarithm)
-    # Added a small check to prevent log(0) errors if sequences converge or collide
-    if delta_n > 1e-15:
-        current_lambda = (1.0 / n) * math.log(delta_n / delta0)
-        lambda_n.append(current_lambda)
-        n_steps.append(n)
-    else:
-        # If delta_n is effectively zero, lambda is negative infinity, which is skipped for the plot
-        pass 
+    # 1. Get the k value for the newest term in the sum
+    # The sum for lambda_n goes from k=0 to k=n-1.
+    # So, the newest term to add to the sum is for k = n-1.
+    k = n - 1
+    x_k = x_seq[k] # This is x_{n-1}
+    
+    # 2. Calculate the derivative f'(x_k)
+    f_prime = A_lyapunov * (1.0 - 2.0 * x_k)
+    
+    # 3. Add its log-magnitude to the running sum
+    # Check for f_prime = 0 (which happens if x_k = 0.5) to avoid log(0)
+    if abs(f_prime) > 1e-15:
+        running_log_sum += math.log(abs(f_prime))
+    
+    # 4. Calculate lambda_n = (1/n) * (running_log_sum)
+    # [cite_start]This is the average, as per the formula [cite: 76]
+    current_lambda = running_log_sum / n
+    
+    # 5. Store for plotting
+    lambda_n.append(current_lambda)
+    n_steps.append(n)
         
 
 # Plotting the Lyapunov Exponent

@@ -117,6 +117,9 @@ delta_ts = [0.0025, 0.005, 0.01, 0.02, 0.04, 0.08]
 #get true solution using very small delta_t and RK-4
 true_solution_x, true_solution_v = runge_kutta_4(0.00125)
 
+# Print last 3 values for verification
+print(true_solution_x[-3:])  
+
 euler_rmse = []
 rk4_rmse = []
 
